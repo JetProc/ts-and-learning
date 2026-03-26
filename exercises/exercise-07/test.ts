@@ -1,5 +1,5 @@
-import { IsTypeEqual, typeAssert } from 'type-assertions';
-import { swap } from './index';
+import {IsTypeEqual, typeAssert} from 'type-assertions';
+import {swap} from './index';
 
 const pair1 = swap(123, 'hello');
 typeAssert<IsTypeEqual<typeof pair1, [string, number]>>();

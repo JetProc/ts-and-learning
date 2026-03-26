@@ -2,5 +2,5 @@
 import 'date-wizard';
 
 declare module 'date-wizard' {
-    // Add your module extensions here.
+  // Add your module extensions here.
 }

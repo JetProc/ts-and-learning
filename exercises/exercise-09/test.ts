@@ -1,9 +1,4 @@
-import {
-  IsTypeEqual,
-  IsTypeAssignable,
-  Not,
-  typeAssert,
-} from 'type-assertions';
+import {IsTypeEqual, IsTypeAssignable, Not, typeAssert} from 'type-assertions';
 import {
   ApiResponse,
   requestAdmins,
@@ -12,18 +7,10 @@ import {
   requestCurrentServerTime,
 } from './index';
 
-typeAssert<
-  IsTypeAssignable<ApiResponse<number>, { status: 'success'; data: number }>
->();
-typeAssert<
-  IsTypeAssignable<ApiResponse<number>, { status: 'error'; error: string }>
->();
-typeAssert<
-  IsTypeAssignable<ApiResponse<boolean>, { status: 'success'; data: boolean }>
->();
-typeAssert<
-  IsTypeAssignable<ApiResponse<boolean>, { status: 'error'; error: string }>
->();
+typeAssert<IsTypeAssignable<ApiResponse<number>, {status: 'success'; data: number}>>();
+typeAssert<IsTypeAssignable<ApiResponse<number>, {status: 'error'; error: string}>>();
+typeAssert<IsTypeAssignable<ApiResponse<boolean>, {status: 'success'; data: boolean}>>();
+typeAssert<IsTypeAssignable<ApiResponse<boolean>, {status: 'error'; error: string}>>();
 typeAssert<Not<IsTypeEqual<ApiResponse<number>, unknown>>>();
 
 typeAssert<

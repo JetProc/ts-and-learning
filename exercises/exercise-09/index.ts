@@ -44,8 +44,8 @@ interface Admin {
 type Person = User | Admin;
 
 const admins: Admin[] = [
-  { type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator' },
-  { type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver' },
+  {type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator'},
+  {type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver'},
 ];
 
 const users: User[] = [
@@ -55,43 +55,33 @@ const users: User[] = [
     age: 25,
     occupation: 'Chimney sweep',
   },
-  { type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut' },
+  {type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut'},
 ];
 
-export type ApiResponse<T> =
-  | { status: 'success'; data: T }
-  | { status: 'error'; error: string };
+export type ApiResponse<T> = {status: 'success'; data: T} | {status: 'error'; error: string};
 
-export function requestAdmins(
-  callback: (response: ApiResponse<Admin[]>) => void
-) {
+export function requestAdmins(callback: (response: ApiResponse<Admin[]>) => void) {
   callback({
     status: 'success',
     data: admins,
   });
 }
 
-export function requestUsers(
-  callback: (response: ApiResponse<User[]>) => void
-) {
+export function requestUsers(callback: (response: ApiResponse<User[]>) => void) {
   callback({
     status: 'success',
     data: users,
   });
 }
 
-export function requestCurrentServerTime(
-  callback: (response: ApiResponse<number>) => void
-) {
+export function requestCurrentServerTime(callback: (response: ApiResponse<number>) => void) {
   callback({
     status: 'success',
     data: Date.now(),
   });
 }
 
-export function requestCoffeeMachineQueueLength(
-  callback: (response: ApiResponse<number>) => void
-) {
+export function requestCoffeeMachineQueueLength(callback: (response: ApiResponse<number>) => void) {
   callback({
     status: 'error',
     error: 'Numeric value has exceeded Number.MAX_SAFE_INTEGER.',
@@ -99,9 +89,7 @@ export function requestCoffeeMachineQueueLength(
 }
 
 function logPerson(person: Person) {
-  console.log(
-    ` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`
-  );
+  console.log(` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`);
 }
 
 function startTheApp(callback: (error: Error | null) => void) {
@@ -128,9 +116,7 @@ function startTheApp(callback: (error: Error | null) => void) {
       requestCurrentServerTime((serverTimeResponse) => {
         console.log('Server time:');
         if (serverTimeResponse.status === 'success') {
-          console.log(
-            `   ${new Date(serverTimeResponse.data).toLocaleString()}`
-          );
+          console.log(`   ${new Date(serverTimeResponse.data).toLocaleString()}`);
         } else {
           return callback(new Error(serverTimeResponse.error));
         }
@@ -155,9 +141,7 @@ function startTheApp(callback: (error: Error | null) => void) {
 startTheApp((e: Error | null) => {
   console.log();
   if (e) {
-    console.log(
-      `Error: "${e.message}", but it's fine, sometimes errors are inevitable.`
-    );
+    console.log(`Error: "${e.message}", but it's fine, sometimes errors are inevitable.`);
   } else {
     console.log('Success!');
   }
