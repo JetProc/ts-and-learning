@@ -52,8 +52,8 @@ interface Admin {
 type Person = User | Admin;
 
 const admins: Admin[] = [
-  { type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator' },
-  { type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver' },
+  {type: 'admin', name: 'Jane Doe', age: 32, role: 'Administrator'},
+  {type: 'admin', name: 'Bruce Willis', age: 64, role: 'World saver'},
 ];
 
 const users: User[] = [
@@ -63,7 +63,7 @@ const users: User[] = [
     age: 25,
     occupation: 'Chimney sweep',
   },
-  { type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut' },
+  {type: 'user', name: 'Kate Müller', age: 23, occupation: 'Astronaut'},
 ];
 
 export type ApiResponse<T> =
@@ -76,17 +76,30 @@ export type ApiResponse<T> =
       error: string;
     };
 
-export function promisify<T>(
-  func: (callback: (response: ApiResponse<T>) => void) => void
-): () => Promise<T> {
-  return () => {
-    return new Promise((resolve, reject) => {
+type CallbackApiResponseArrowFunc<T> = (callback: (response: ApiResponse<T>) => void) => void;
+
+type PromiseArrowFunc<T> = () => Promise<T>;
+
+export function promisify<T>(func: CallbackApiResponseArrowFunc<T>): PromiseArrowFunc<T> {
+  return () =>
+    new Promise((resolve, reject) => {
       func((response) => {
         if (response.status === 'success') resolve(response.data);
         if (response.status === 'error') reject(new Error(response.error));
       });
     });
-  };
+}
+
+type SourceObject<T> = {[K in keyof T]: CallbackApiResponseArrowFunc<T[K]>};
+type PromisifiedObject<T> = {[K in keyof T]: PromiseArrowFunc<T[K]>};
+
+export function promisifyAll<T extends {[key: string]: any}>(obj: SourceObject<T>): PromisifiedObject<T> {
+  const result: Partial<PromisifiedObject<T>> = {};
+
+  for (const key of Object.keys(obj) as (keyof T)[]) {
+    result[key] = promisify(obj[key]);
+  }
+  return result as PromisifiedObject<T>;
 }
 
 const oldApi = {
@@ -108,9 +121,7 @@ const oldApi = {
       data: Date.now(),
     });
   },
-  requestCoffeeMachineQueueLength(
-    callback: (response: ApiResponse<number>) => void
-  ) {
+  requestCoffeeMachineQueueLength(callback: (response: ApiResponse<number>) => void) {
     callback({
       status: 'error',
       error: 'Numeric value has exceeded Number.MAX_SAFE_INTEGER.',
@@ -118,19 +129,10 @@ const oldApi = {
   },
 };
 
-export const api = {
-  requestAdmins: promisify(oldApi.requestAdmins),
-  requestUsers: promisify(oldApi.requestUsers),
-  requestCurrentServerTime: promisify(oldApi.requestCurrentServerTime),
-  requestCoffeeMachineQueueLength: promisify(
-    oldApi.requestCoffeeMachineQueueLength
-  ),
-};
+export const api = promisifyAll(oldApi);
 
 function logPerson(person: Person) {
-  console.log(
-    ` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`
-  );
+  console.log(` - ${person.name}, ${person.age}, ${person.type === 'admin' ? person.role : person.occupation}`);
 }
 
 async function startTheApp() {
@@ -143,9 +145,7 @@ async function startTheApp() {
   console.log();
 
   console.log('Server time:');
-  console.log(
-    `   ${new Date(await api.requestCurrentServerTime()).toLocaleString()}`
-  );
+  console.log(`   ${new Date(await api.requestCurrentServerTime()).toLocaleString()}`);
   console.log();
 
   console.log('Coffee machine queue length:');
@@ -157,9 +157,7 @@ startTheApp().then(
     console.log('Success!');
   },
   (e: Error) => {
-    console.log(
-      `Error: "${e.message}", but it's fine, sometimes errors are inevitable.`
-    );
+    console.log(`Error: "${e.message}", but it's fine, sometimes errors are inevitable.`);
   }
 );
 
